@@ -21,65 +21,82 @@ Settings.chunk_overlap = (
 )
 
 
-def split_markdown_by_headers(content: str) -> list[str]:
+def split_markdown_by_headers(content: str, source_path: str) -> list[Document]:
     """
-    Split markdown content into sections based on h2 headers (##)
-    This preserves the document structure and maintains context within sections
+    Enhanced markdown content splitter that preserves hierarchy and handles code blocks.
+    Only splits at level 2 headers (##) but preserves subheaders in content.
 
     Args:
         content: Raw markdown content
+        source_path: Path to the source file
     Returns:
-        List of sections, each starting with an h2 header
+        List of Document objects
     """
-    sections = []
+    documents = []
     current_section = []
+    current_title = "Introduction"  # Default title if section doesn't have title
+    in_code_block = False
 
     for line in content.split("\n"):
-        if line.startswith("## "):  # New section starts with h2 header
+        # Handle code blocks
+        if line.startswith("```"):
+            in_code_block = not in_code_block
+            current_section.append(line)
+            continue
+
+        if in_code_block:
+            current_section.append(line)
+            continue
+
+        # Only split on level 2 headers (##)
+        if line.startswith("## "):
+            # Save previous section if it exists
             if current_section:
-                sections.append("\n".join(current_section))
+                section_text = "\n".join(current_section)
+                if section_text.strip():
+                    documents.append(
+                        Document(
+                            text=section_text,
+                            metadata={
+                                "source": str(source_path),
+                                "section": current_title,
+                            },
+                        )
+                    )
+
+            current_title = line[3:].strip()  # Remove "## " prefix
             current_section = [line]
         else:
             current_section.append(line)
 
     # Don't forget the last section
     if current_section:
-        sections.append("\n".join(current_section))
+        section_text = "\n".join(current_section)
+        if section_text.strip():
+            documents.append(
+                Document(
+                    text=section_text,
+                    metadata={"source": str(source_path), "section": current_title},
+                )
+            )
 
-    return sections
+    return documents
 
 
 def load_markdown_files(directory: str) -> list[Document]:
     """
     Load and process markdown files from a directory
-    Splits each file into sections and creates Document objects
 
     Args:
         directory: Path to the documents directory
     Returns:
-        List of Document objects, each representing a section
+        List of Document objects
     """
     documents = []
     for path in Path(directory).rglob("*.md"):
         with open(path, "r", encoding="utf-8") as f:
             content = f.read()
-            # Split content into sections
-            sections = split_markdown_by_headers(content)
-
-            # Create a document for each section
-            for section in sections:
-                if section.strip():  # Skip empty sections
-                    documents.append(
-                        Document(
-                            text=section,
-                            metadata={
-                                "source": str(path),
-                                "section": section.split("\n")[0]
-                                if section.split("\n")
-                                else "Introduction",
-                            },
-                        )
-                    )
+            documents.extend(split_markdown_by_headers(content, str(path)))
     return documents
 
 
