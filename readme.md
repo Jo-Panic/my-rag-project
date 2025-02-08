@@ -50,12 +50,16 @@ python src/main.py
 
 ```
 .
-├── docs/                # Vos fichiers Markdown
-├── src/                 # Code source
-│   └── main.py         # Script principal
-├── chroma_db/          # Base de données vectorielle (généré)
-├── requirements.txt    # Dépendances Python
-└── README.md          # Ce fichier
+├── docs/                    # Vos fichiers Markdown
+├── src/                    # Code source
+│   ├── main.py            # Script principal
+│   ├── config.py          # Configuration et initialisation
+│   ├── markdown_processor.py   # Traitement des fichiers Markdown
+│   ├── prompts.py         # Prompts système
+│   └── query_engine.py    # Moteur de requête et validation
+├── chroma_db/             # Base de données vectorielle (généré)
+├── requirements.txt       # Dépendances Python
+└── README.md             # Ce fichier
 ```
 
 ---
@@ -108,15 +112,14 @@ python src/main.py
 
 ```
 .
-├── docs/                # Your Markdown files
-├── src/                 # Source code
-│   └── main.py         # Main script
-├── chroma_db/          # Vector database (generated)
-├── requirements.txt    # Python dependencies
-└── README.md          # This file
+├── docs/                    # Your Markdown files
+├── src/                    # Source code
+│   ├── main.py            # Main script
+│   ├── config.py          # Configuration and initialization
+│   ├── markdown_processor.py   # Markdown file processing
+│   ├── prompts.py         # System prompts
+│   └── query_engine.py    # Query engine and validation
+├── chroma_db/             # Vector database (generated)
+├── requirements.txt       # Python dependencies
+└── README.md             # This file
 ```
-
-### 🤝 Contributing
-
-Feel free to open issues and pull requests!
-
